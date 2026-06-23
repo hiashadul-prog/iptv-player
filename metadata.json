@@ -1,0 +1,6 @@
+{
+  "name": "IPTV Player",
+  "description": "An IPTV and Live Streaming HLS/M3U8 Player built in pure Java with Media3 ExoPlayer and material-designed views.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

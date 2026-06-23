@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme Aware Color Palette (Dark Theme Overrides) -->
+    <color name="app_background">#121212</color>
+    <color name="card_background">#1D192B</color>
+    <color name="app_bar_background">#1E1B24</color>
+    <color name="text_primary">#E6E1E5</color>
+    <color name="text_secondary">#CAC4D0</color>
+    <color name="text_muted">#928F9E</color>
+    <color name="accent">#D0BCFF</color>
+    <color name="selected_card_background">#2D283E</color>
+    <color name="card_border">#33FFFFFF</color>
+    <color name="search_background">#1E1B24</color>
+    <color name="fab_background">#D0BCFF</color>
+    <color name="fab_icon">#381E72</color>
+</resources>

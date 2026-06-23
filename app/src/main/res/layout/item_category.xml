@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pill_root"
+    android:layout_width="wrap_content"
+    android:layout_height="32dp"
+    android:layout_marginEnd="8dp"
+    android:layout_gravity="center_vertical"
+    app:cardCornerRadius="16dp"
+    app:cardBackgroundColor="#211F26"
+    app:strokeWidth="0dp">
+
+    <TextView
+        android:id="@+id/txt_category_name"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingHorizontal="14dp"
+        android:text="Category"
+        android:textColor="#CAC4D0"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+</com.google.android.material.card.MaterialCardView>
