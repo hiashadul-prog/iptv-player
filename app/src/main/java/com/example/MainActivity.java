@@ -31,6 +31,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
@@ -58,6 +59,10 @@ public class MainActivity extends AppCompatActivity implements ChannelAdapter.Ch
     private PlayerView playerView;
     private View playerOverlay;
     private ImageView btnPip;
+    private ImageView btnFullscreen;
+    private boolean isFullscreen = false;
+    private ImageView btnViewToggle;
+    private boolean isGridView = false;
 
     private RecyclerView rvChannels;
     private RecyclerView rvCategories;
@@ -148,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements ChannelAdapter.Ch
         playerView = findViewById(com.example.R.id.player_view);
         playerOverlay = findViewById(com.example.R.id.player_overlay);
         btnPip = findViewById(com.example.R.id.btn_pip);
+        btnFullscreen = findViewById(com.example.R.id.btn_fullscreen);
 
         rvChannels = findViewById(com.example.R.id.rv_channels);
         rvCategories = findViewById(com.example.R.id.rv_categories);
@@ -166,7 +172,12 @@ public class MainActivity extends AppCompatActivity implements ChannelAdapter.Ch
         ImageView btnImportEpg = findViewById(com.example.R.id.btn_import_epg);
         ImageView btnImportM3u = findViewById(com.example.R.id.btn_import_m3u);
         ImageView btnTheme = findViewById(com.example.R.id.btn_theme);
+        btnViewToggle = findViewById(com.example.R.id.btn_view_toggle);
         fabAddChannel = findViewById(com.example.R.id.fab_add_channel);
+
+        SharedPreferences layoutPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        isGridView = layoutPrefs.getBoolean("is_grid_view", false);
+        updateViewToggleIcon();
 
         boolean currentDarkMode = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
                 == android.content.res.Configuration.UI_MODE_NIGHT_YES;
@@ -187,9 +198,27 @@ public class MainActivity extends AppCompatActivity implements ChannelAdapter.Ch
 
         btnImportEpg.setOnClickListener(v -> showEpgImportDialog());
         btnImportM3u.setOnClickListener(v -> showM3uImportDialog());
+        btnViewToggle.setOnClickListener(v -> {
+            isGridView = !isGridView;
+            SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+            prefs.edit().putBoolean("is_grid_view", isGridView).apply();
+            updateViewToggleIcon();
+
+            if (isGridView) {
+                rvChannels.setLayoutManager(new GridLayoutManager(this, 2));
+            } else {
+                rvChannels.setLayoutManager(new LinearLayoutManager(this));
+            }
+            if (channelAdapter != null) {
+                channelAdapter.setGridView(isGridView);
+            }
+        });
         fabAddChannel.setOnClickListener(v -> showAddChannelDialog());
 
         btnPip.setOnClickListener(v -> enterPipMode());
+        if (btnFullscreen != null) {
+            btnFullscreen.setOnClickListener(v -> toggleFullscreenState());
+        }
 
         // Simple text watcher for searching channels
         searchInput.addTextChangedListener(new android.text.TextWatcher() {
@@ -206,7 +235,11 @@ public class MainActivity extends AppCompatActivity implements ChannelAdapter.Ch
 
     private void setupPlayer() {
         retryHandler = new Handler(Looper.getMainLooper());
-        player = new ExoPlayer.Builder(this).build();
+        Context playerContext = this;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            playerContext = createAttributionContext("iptv_streamer_attribution");
+        }
+        player = new ExoPlayer.Builder(playerContext).build();
         playerView.setPlayer(player);
 
         player.addListener(new Player.Listener() {
@@ -256,7 +289,12 @@ public class MainActivity extends AppCompatActivity implements ChannelAdapter.Ch
 
     private void setupRecyclerViews() {
         channelAdapter = new ChannelAdapter(this);
-        rvChannels.setLayoutManager(new LinearLayoutManager(this));
+        channelAdapter.setGridView(isGridView);
+        if (isGridView) {
+            rvChannels.setLayoutManager(new GridLayoutManager(this, 2));
+        } else {
+            rvChannels.setLayoutManager(new LinearLayoutManager(this));
+        }
         rvChannels.setAdapter(channelAdapter);
 
         categoryAdapter = new CategoryAdapter(this);
@@ -351,22 +389,10 @@ public class MainActivity extends AppCompatActivity implements ChannelAdapter.Ch
                 }
             } else {
                 playerView.setUseController(true);
-                if (appBarLayout != null) appBarLayout.setVisibility(View.VISIBLE);
-                if (searchLayout != null) searchLayout.setVisibility(View.VISIBLE);
-                if (rvCategories != null) rvCategories.setVisibility(View.VISIBLE);
-                if (channelsContainer != null) channelsContainer.setVisibility(View.VISIBLE);
-                if (fabAddChannel != null) fabAddChannel.setVisibility(View.VISIBLE);
                 if (playerOverlay != null && viewModel.getSelectedChannel().getValue() != null) {
                     playerOverlay.setVisibility(View.VISIBLE);
                 }
-
-                if (playerContainer != null && originalPlayerHeight != -1) {
-                    android.view.ViewGroup.LayoutParams params = playerContainer.getLayoutParams();
-                    if (params != null) {
-                        params.height = originalPlayerHeight;
-                        playerContainer.setLayoutParams(params);
-                    }
-                }
+                setFullscreenLayout(isFullscreen);
             }
         });
     }
@@ -724,5 +750,93 @@ public class MainActivity extends AppCompatActivity implements ChannelAdapter.Ch
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void toggleFullscreenState() {
+        isFullscreen = !isFullscreen;
+        if (isFullscreen) {
+            setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        } else {
+            setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        boolean isLandscape = (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE);
+        isFullscreen = isLandscape;
+        setFullscreenLayout(isLandscape);
+    }
+
+    private void setFullscreenLayout(boolean fullscreen) {
+        toggleSystemUi(fullscreen);
+
+        if (btnFullscreen != null) {
+            btnFullscreen.setImageResource(fullscreen ? 
+                com.example.R.drawable.ic_fullscreen_exit : 
+                com.example.R.drawable.ic_fullscreen);
+        }
+
+        if (appBarLayout != null) {
+            appBarLayout.setVisibility(fullscreen ? View.GONE : View.VISIBLE);
+        }
+        if (searchLayout != null) {
+            searchLayout.setVisibility(fullscreen ? View.GONE : View.VISIBLE);
+        }
+        if (rvCategories != null) {
+            rvCategories.setVisibility(fullscreen ? View.GONE : View.VISIBLE);
+        }
+        if (channelsContainer != null) {
+            channelsContainer.setVisibility(fullscreen ? View.GONE : View.VISIBLE);
+        }
+        if (fabAddChannel != null) {
+            fabAddChannel.setVisibility(fullscreen ? View.GONE : View.VISIBLE);
+        }
+
+        if (playerContainer != null) {
+            android.view.ViewGroup.LayoutParams params = playerContainer.getLayoutParams();
+            if (params != null) {
+                if (fullscreen) {
+                    params.height = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+                } else {
+                    params.height = originalPlayerHeight != -1 ? originalPlayerHeight : (int) (220 * getResources().getDisplayMetrics().density);
+                }
+                playerContainer.setLayoutParams(params);
+            }
+        }
+    }
+
+    private void toggleSystemUi(boolean fullscreen) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            android.view.WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                if (fullscreen) {
+                    controller.hide(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
+                    controller.setSystemBarsBehavior(android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                } else {
+                    controller.show(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
+                }
+            }
+        } else {
+            View decorView = getWindow().getDecorView();
+            int uiOptions = decorView.getSystemUiVisibility();
+            if (fullscreen) {
+                uiOptions |= View.SYSTEM_UI_FLAG_FULLSCREEN 
+                          | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION 
+                          | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+            } else {
+                uiOptions &= ~(View.SYSTEM_UI_FLAG_FULLSCREEN 
+                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION 
+                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            }
+            decorView.setSystemUiVisibility(uiOptions);
+        }
+    }
+
+    private void updateViewToggleIcon() {
+        if (btnViewToggle != null) {
+            btnViewToggle.setImageResource(isGridView ? com.example.R.drawable.ic_view_list : com.example.R.drawable.ic_view_module);
+        }
     }
 }

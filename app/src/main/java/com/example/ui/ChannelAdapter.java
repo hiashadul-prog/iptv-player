@@ -36,6 +36,22 @@ public class ChannelAdapter extends ListAdapter<Channel, ChannelAdapter.ChannelV
     private Channel selectedChannel;
     private final Map<String, List<EpgProgram>> epgByChannel = new HashMap<>();
     private final SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.getDefault());
+    private int lastPosition = -1;
+    private boolean isGridView = false;
+
+    private static final int VIEW_TYPE_LIST = 0;
+    private static final int VIEW_TYPE_GRID = 1;
+
+    public void setGridView(boolean gridView) {
+        if (this.isGridView != gridView) {
+            this.isGridView = gridView;
+            notifyItemRangeChanged(0, getItemCount());
+        }
+    }
+
+    public boolean isGridView() {
+        return isGridView;
+    }
 
     public ChannelAdapter(ChannelListener listener) {
         super(new DiffUtil.ItemCallback<Channel>() {
@@ -75,10 +91,16 @@ public class ChannelAdapter extends ListAdapter<Channel, ChannelAdapter.ChannelV
         notifyItemRangeChanged(0, getItemCount());
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return isGridView ? VIEW_TYPE_GRID : VIEW_TYPE_LIST;
+    }
+
     @NonNull
     @Override
     public ChannelViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(com.example.R.layout.item_channel, parent, false);
+        int layoutRes = (viewType == VIEW_TYPE_GRID) ? com.example.R.layout.item_channel_grid : com.example.R.layout.item_channel;
+        View view = LayoutInflater.from(parent.getContext()).inflate(layoutRes, parent, false);
         return new ChannelViewHolder(view);
     }
 
@@ -86,6 +108,35 @@ public class ChannelAdapter extends ListAdapter<Channel, ChannelAdapter.ChannelV
     public void onBindViewHolder(@NonNull ChannelViewHolder holder, int position) {
         Channel channel = getItem(position);
         holder.bind(channel);
+        setAnimation(holder.itemView, position);
+    }
+
+    @Override
+    public void onCurrentListChanged(@NonNull List<Channel> previousList, @NonNull List<Channel> currentList) {
+        super.onCurrentListChanged(previousList, currentList);
+        lastPosition = -1;
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull ChannelViewHolder holder) {
+        super.onViewRecycled(holder);
+        holder.itemView.animate().cancel();
+    }
+
+    private void setAnimation(View viewToAnimate, int position) {
+        if (position > lastPosition) {
+            viewToAnimate.animate().cancel();
+            viewToAnimate.setTranslationY(100f);
+            viewToAnimate.setAlpha(0f);
+            viewToAnimate.animate()
+                    .translationY(0f)
+                    .alpha(1f)
+                    .setDuration(350)
+                    .setStartDelay(Math.min(position * 20, 150))
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                    .start();
+            lastPosition = position;
+        }
     }
 
     class ChannelViewHolder extends RecyclerView.ViewHolder {

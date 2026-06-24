@@ -48,6 +48,17 @@
                     app:tint="@color/accent" />
 
                 <ImageView
+                    android:id="@+id/btn_view_toggle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Toggle List and Grid layout"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_view_module"
+                    app:tint="@color/accent" />
+
+                <ImageView
                     android:id="@+id/btn_import_epg"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
@@ -104,6 +115,19 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@android:drawable/ic_menu_crop"
                     android:contentDescription="Picture in Picture"
+                    app:tint="#FFFFFF" />
+
+                <ImageView
+                    android:id="@+id/btn_fullscreen"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_toStartOf="@id/btn_pip"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_fullscreen"
+                    android:contentDescription="Toggle Fullscreen"
                     app:tint="#FFFFFF" />
             </RelativeLayout>
         </FrameLayout>
