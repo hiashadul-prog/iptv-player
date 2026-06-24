@@ -236,9 +236,6 @@ public class MainActivity extends AppCompatActivity implements ChannelAdapter.Ch
     private void setupPlayer() {
         retryHandler = new Handler(Looper.getMainLooper());
         Context playerContext = this;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            playerContext = createAttributionContext("iptv_streamer_attribution");
-        }
         player = new ExoPlayer.Builder(playerContext).build();
         playerView.setPlayer(player);
 

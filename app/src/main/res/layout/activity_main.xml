@@ -13,76 +13,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Custom Beautiful App Bar -->
-        <RelativeLayout
-            android:id="@+id/app_bar_layout"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:background="@color/app_bar_background"
-            android:paddingHorizontal="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="IPTV Studio"
-                android:textColor="@color/accent"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_alignParentEnd="true"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:id="@+id/btn_theme"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Toggle Light/Dark Theme"
-                    android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_compass"
-                    app:tint="@color/accent" />
-
-                <ImageView
-                    android:id="@+id/btn_view_toggle"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="8dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Toggle List and Grid layout"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_view_module"
-                    app:tint="@color/accent" />
-
-                <ImageView
-                    android:id="@+id/btn_import_epg"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="8dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Import EPG Guide"
-                    android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_today"
-                    app:tint="@color/accent" />
-
-                <ImageView
-                    android:id="@+id/btn_import_m3u"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="8dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Import M3U Playlist"
-                    android:padding="8dp"
-                    android:src="@android:drawable/stat_sys_download"
-                    app:tint="@color/accent" />
-
-            </LinearLayout>
-        </RelativeLayout>
-
         <!-- Video Player Section -->
         <FrameLayout
             android:id="@+id/player_container"
@@ -132,35 +62,95 @@
             </RelativeLayout>
         </FrameLayout>
 
-        <!-- Search Bar -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/search_layout"
-            style="@style/Widget.Material3.TextInputLayout.FilledBox"
+        <!-- Search Bar and Action Row -->
+        <LinearLayout
+            android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp"
-            app:boxBackgroundColor="@color/search_background"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusBottomEnd="12dp"
-            app:boxStrokeWidth="0dp"
-            app:boxStrokeWidthFocused="0dp"
-            app:hintTextColor="@color/text_muted"
-            app:startIconDrawable="@android:drawable/ic_menu_search"
-            app:startIconTint="@color/text_secondary">
+            android:layout_marginTop="12dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/search_input"
-                android:layout_width="match_parent"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/search_layout"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="Search channels or groups..."
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:textSize="14sp"
-                android:singleLine="true" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_weight="1"
+                app:boxBackgroundColor="@color/search_background"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:hintTextColor="@color/text_muted"
+                app:startIconDrawable="@android:drawable/ic_menu_search"
+                app:startIconTint="@color/text_secondary">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/search_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Search channels or groups..."
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="14sp"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/btn_theme"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Toggle Light/Dark Theme"
+                    android:padding="8dp"
+                    android:src="@android:drawable/ic_menu_compass"
+                    app:tint="@color/accent" />
+
+                <ImageView
+                    android:id="@+id/btn_view_toggle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Toggle List and Grid layout"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_view_module"
+                    app:tint="@color/accent" />
+
+                <ImageView
+                    android:id="@+id/btn_import_epg"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Import EPG Guide"
+                    android:padding="8dp"
+                    android:src="@android:drawable/ic_menu_today"
+                    app:tint="@color/accent" />
+
+                <ImageView
+                    android:id="@+id/btn_import_m3u"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Import M3U Playlist"
+                    android:padding="8dp"
+                    android:src="@android:drawable/stat_sys_download"
+                    app:tint="@color/accent" />
+            </LinearLayout>
+        </LinearLayout>
 
         <!-- Category Horizontal Tabs -->
         <androidx.recyclerview.widget.RecyclerView

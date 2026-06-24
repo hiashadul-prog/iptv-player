@@ -100,9 +100,6 @@ public class ChannelViewModel extends AndroidViewModel {
     private void setupNetworkCallback() {
         try {
             Context context = getApplication();
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                context = context.createAttributionContext("iptv_streamer_attribution");
-            }
             connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if (connectivityManager != null) {
                 Network activeNet = connectivityManager.getActiveNetwork();
